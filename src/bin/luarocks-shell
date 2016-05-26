@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export PATH=$(dirname $(readlink -f "$0"))":$PATH"
+eval $(luarocks path --bin)
+export LUA_PATH LUA_CPATH PATH
+exec "$SHELL" "$@"
