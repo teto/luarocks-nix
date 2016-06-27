@@ -59,10 +59,13 @@ function cache.refresh_local_cache(server, url, user, password)
    util.printout("Refreshing cache "..local_cache.."...")
 
    -- TODO abstract away explicit 'wget' call
-   local ok = false
    if protocol == "rsync" then
       local srv, path = server_path:match("([^/]+)(/.+)")
       ok = fs.execute(cfg.variables.RSYNC.." "..cfg.variables.RSYNCFLAGS.." -e ssh "..user.."@"..srv..":"..path.."/ "..local_cache.."/")
+   elseif protocol == "sftp" then
+      local srv, path = server_path:match("([^/]+)(/.+)")
+      local scp_path = (user and user.."@" or "")..srv..":"..path.."/'*'"
+      ok = fs.execute(cfg.variables.SCP.." "..scp_path.." "..local_cache.."/")
    else 
       local login_info = ""
       if user then login_info = " --user="..user end
