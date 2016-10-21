@@ -91,6 +91,9 @@ describe("LuaRocks install tests #blackbox #b_install", function()
       it('LuaRocks install - handle relative path in --tree #632', function()
          local relative_sys_tree = testing_paths.testing_sys_tree:match("/test/[^/]*$")
          assert.is_truthy(relative_sys_tree)
+         if test_env.TEST_TARGET_OS == "windows" then
+            relative_sys_tree = relative_sys_tree:gsub("/", "\\")
+         end
          assert.is.truthy(lfs.attributes("."..relative_sys_tree))
          assert.is_true(run.luarocks_bool("install luafilesystem --tree=."..relative_sys_tree))
       end)
