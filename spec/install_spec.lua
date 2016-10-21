@@ -88,6 +88,13 @@ describe("LuaRocks install tests #blackbox #b_install", function()
          assert.is.truthy(lfs.attributes(testing_paths.testing_sys_tree .. "/lib/luarocks/rocks/luasec"))
       end)
 
+      it('LuaRocks install - handle relative path in --tree #632', function()
+         local relative_sys_tree = testing_paths.testing_sys_tree:match("/test/[^/]*$")
+         assert.is_truthy(relative_sys_tree)
+         assert.is.truthy(lfs.attributes("."..relative_sys_tree))
+         assert.is_true(run.luarocks_bool("install luafilesystem --tree=."..relative_sys_tree))
+      end)
+
       it('LuaRocks install - handle versioned modules when installing another version with --keep #268', function()
          assert.is_true(run.luarocks_bool("install luafilesystem"))
          assert.is.truthy(lfs.attributes(testing_paths.testing_sys_tree .. "/lib/lua/"..env_variables.LUA_VERSION.."/lfs."..test_env.lib_extension))
