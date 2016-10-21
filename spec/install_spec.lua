@@ -89,13 +89,16 @@ describe("LuaRocks install tests #blackbox #b_install", function()
       end)
 
       it('LuaRocks install - handle relative path in --tree #632', function()
-         local relative_sys_tree = testing_paths.testing_sys_tree:match("/test/[^/]*$")
-         assert.is_truthy(relative_sys_tree)
+         local relative_path = "./temp_dir_"..math.random(100000)
          if test_env.TEST_TARGET_OS == "windows" then
-            relative_sys_tree = relative_sys_tree:gsub("/", "\\")
+            relative_path = relative_path:gsub("/", "\\")
          end
-         assert.is.truthy(lfs.attributes("."..relative_sys_tree))
-         assert.is_true(run.luarocks_bool("install luafilesystem --tree=."..relative_sys_tree))
+         test_env.remove_dir(relative_path)
+         assert.is.falsy(lfs.attributes(relative_path))
+         assert.is_true(run.luarocks_bool("install luafilesystem --tree="..relative_path))
+         assert.is.truthy(lfs.attributes(relative_path))
+         test_env.remove_dir(relative_path)
+         assert.is.falsy(lfs.attributes(relative_path))
       end)
 
       it('LuaRocks install - handle versioned modules when installing another version with --keep #268', function()
