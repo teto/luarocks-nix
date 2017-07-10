@@ -28,6 +28,8 @@ commands = {
    doc = "luarocks.doc",
    upload = "luarocks.upload",
    config = "luarocks.config_cmd",
+   convert2nix = "luarocks.nix",
+
 }
 
 command_line.run_command(...)
