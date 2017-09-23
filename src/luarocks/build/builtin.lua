@@ -13,7 +13,7 @@ local dir = require("luarocks.dir")
 --- Run a command displaying its execution on standard output.
 -- @return boolean: true if command succeeds (status code 0), false
 -- otherwise.
-local function execute(...)
+function builtin.execute(...)
    io.stdout:write(table.concat({...}, " ").."\n")
    return fs.execute(...)
 end
