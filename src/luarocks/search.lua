@@ -378,19 +378,24 @@ end
 -- @return (table, table): Two tables, one for source and one for binary
 -- results.
 local function split_source_and_binary_results(results)
-   local sources, binaries = {}, {}
+   local sources, rockspecs, binaries = {}, {}, {}
    for name, versions in pairs(results) do
       for version, repositories in pairs(versions) do
          for _, repo in ipairs(repositories) do
             local where = sources
+			-- util.printout("arch=", repo.arch)
+			-- util.printout("TOTO:")
             if repo.arch == "all" or repo.arch == cfg.arch then
                where = binaries
+			elseif repo.arch == "rockspec" then
+				-- print("adding to rockspecs=", repo.arch)
+				where = rockspecs
             end
             store_result(where, name, version, repo.arch, repo.repo)
          end
       end
    end
-   return sources, binaries
+   return sources, binaries, rockspecs
 end
 
 --- Given a name and optionally a version, try to find in the rocks
@@ -409,6 +414,8 @@ function search.act_on_src_or_rockspec(action, name, version, ...)
 
    local query = search.make_query(name, version)
    query.arch = "src|rockspec"
+   -- query.arch = "src"
+   -- print("ARCH=", query.arch)
    local url, err = search.find_suitable_rock(query)
    if not url then
       return nil, "Could not find a result named "..name..(version and " "..version or "")..": "..err
@@ -468,12 +475,12 @@ function search.command(flags, name, version)
    local results, err = search.search_repos(query)
    local porcelain = flags["porcelain"]
    util.title("Search results:", porcelain, "=")
-   local sources, binaries = split_source_and_binary_results(results)
+   local sources, binaries, rockspecs = split_source_and_binary_results(results)
    if next(sources) and not flags["binary"] then
       util.title("Rockspecs and source rocks:", porcelain)
       search.print_results(sources, porcelain)
    end
-   if next(binaries) and not flags["source"] then    
+   if next(binaries) and not flags["source"] then
       util.title("Binary and pure-Lua rocks:", porcelain)
       search.print_results(binaries, porcelain)
    end

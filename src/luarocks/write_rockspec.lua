@@ -175,7 +175,7 @@ local function fill_as_builtin(rockspec, libs)
          break
       end
    end
-   
+
    local incdirs, libdirs
    if libs then
       incdirs, libdirs = {}, {}
@@ -203,7 +203,7 @@ local function fill_as_builtin(rockspec, libs)
          end
       end
    end
-   
+
    for _, directory in ipairs({ "doc", "docs", "samples", "tests" }) do
       if fs.is_dir(directory) then
          if not rockspec.build.copy_directories then
@@ -212,7 +212,7 @@ local function fill_as_builtin(rockspec, libs)
          table.insert(rockspec.build.copy_directories, directory)
       end
    end
-   
+
    if prefix ~= "" then
       fs.pop_dir()
    end
@@ -285,9 +285,9 @@ function write_rockspec.command(flags, name, version, url_or_dir)
    }
    path.configure_paths(rockspec)
    rockspec.source.protocol = protocol
-   
+
    configure_lua_version(rockspec, flags["lua-version"])
-   
+
    local local_dir = url_or_dir
 
    if url_or_dir:match("://") then
@@ -314,7 +314,7 @@ function write_rockspec.command(flags, name, version, url_or_dir)
    else
       rockspec.source.url = detect_scm_url(local_dir) or rockspec.source.url
    end
-   
+
    if not local_dir then
       local_dir = "."
    end
@@ -331,7 +331,7 @@ function write_rockspec.command(flags, name, version, url_or_dir)
          end
       end
    end
-   
+
    local libs = nil
    if flags["lib"] then
       libs = {}
@@ -354,20 +354,20 @@ function write_rockspec.command(flags, name, version, url_or_dir)
    end
 
    local is_mit = show_license(rockspec)
-   
+
    if is_mit and not flags["license"] then
       rockspec.description.license = "MIT"
    end
-   
+
    fill_as_builtin(rockspec, libs)
-      
+
    rockspec_cleanup(rockspec)
-   
+
    persist.save_from_table(filename, rockspec, type_check.rockspec_order)
 
-   util.printout()   
+   util.printout()
    util.printout("Wrote template at "..filename.." -- you should now edit and finish it.")
-   util.printout()   
+   util.printout()
 
    return true
 end

@@ -118,7 +118,7 @@ function deps.parse_version(vstring)
       version[i] = version[i] and version[i] + number/100000 or number
       i = i + 1
    end
-   
+
    -- trim leading and trailing spaces
    vstring = vstring:match("^%s*(.*)%s*$")
    version.string = vstring
