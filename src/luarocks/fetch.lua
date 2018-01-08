@@ -204,7 +204,7 @@ function fetch.load_local_rockspec(rel_filename, quick)
 end
 
 --- Load a local or remote rockspec into a table.
--- This is the entry point for the LuaRocks tools. 
+-- This is the entry point for the LuaRocks tools.
 -- Only the LuaRocks runtime loader should use
 -- load_local_rockspec directly.
 -- @param filename string: Local or remote filename of a rockspec.
@@ -225,7 +225,7 @@ function fetch.load_rockspec(filename, location)
          return nil, "Filename '"..filename.."' does not look like a rockspec."
       end
    end
-   
+
    local err, errcode
    if location then
       local ok, err = fs.change_dir(location)
