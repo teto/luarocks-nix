@@ -303,7 +303,7 @@ end
 -- of the rock if it was found, or nil followed by an error message.
 function search.find_suitable_rock(query)
    assert(type(query) == "table")
-   
+
    local results = search.search_repos(query)
    local first_rock = next(results)
    if not first_rock then

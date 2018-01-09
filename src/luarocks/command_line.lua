@@ -22,6 +22,8 @@ end
 -- @param message string: The error message.
 -- @param exitcode number: the exitcode to use
 local function die(message, exitcode)
+
+   util.printerr("\nError: ", message)
    assert(type(message) == "string")
    util.printerr("\nError: "..message)
 
@@ -67,7 +69,7 @@ function command_line.run_command(...)
    if flags.ERROR then
       die(flags.ERROR.." See --help.")
    end
-   
+
    if flags["from"] then flags["server"] = flags["from"] end
    if flags["only-from"] then flags["only-server"] = flags["only-from"] end
    if flags["only-sources-from"] then flags["only-sources"] = flags["only-sources-from"] end
@@ -75,11 +77,11 @@ function command_line.run_command(...)
    if flags["nodeps"] then
       flags["deps-mode"] = "none"
    end
-   
+
    cfg.flags = flags
 
    local command
-   
+
    if flags["verbose"] then   -- setting it in the config file will kick-in earlier in the process
       cfg.verbose = true
       fs.verbose()
@@ -105,7 +107,7 @@ function command_line.run_command(...)
       command = table.remove(nonflags, 1)
    end
    command = command:gsub("-", "_")
-   
+
    if cfg.local_by_default then
       flags["local"] = true
    end
@@ -113,11 +115,11 @@ function command_line.run_command(...)
    if flags["deps-mode"] and not deps.check_deps_mode_flag(flags["deps-mode"]) then
       die("Invalid entry for --deps-mode.")
    end
-   
+
    if flags["branch"] then
      cfg.branch = flags["branch"]
    end
-   
+
    if flags["tree"] then
       local named = false
       for _, tree in ipairs(cfg.rocks_trees) do
@@ -155,7 +157,7 @@ function command_line.run_command(...)
    cfg.deploy_bin_dir = cfg.deploy_bin_dir:gsub("/+$", "")
    cfg.deploy_lua_dir = cfg.deploy_lua_dir:gsub("/+$", "")
    cfg.deploy_lib_dir = cfg.deploy_lib_dir:gsub("/+$", "")
-   
+
    cfg.variables.ROCKS_TREE = cfg.rocks_dir
    cfg.variables.SCRIPTS_DIR = cfg.deploy_bin_dir
 
@@ -163,7 +165,7 @@ function command_line.run_command(...)
       local protocol, path = dir.split_url(flags["server"])
       table.insert(cfg.rocks_servers, 1, protocol.."://"..path)
    end
-   
+
    if flags["only-server"] then
       cfg.rocks_servers = { flags["only-server"] }
    end
@@ -171,7 +173,7 @@ function command_line.run_command(...)
    if flags["only-sources"] then
       cfg.only_sources_from = flags["only-sources"]
    end
-  
+
    if command ~= "help" then
       for k, v in pairs(cmdline_vars) do
          cfg.variables[k] = v
@@ -181,7 +183,8 @@ function command_line.run_command(...)
    if not fs.current_dir() or fs.current_dir() == "" then
       die("Current directory does not exist. Please run LuaRocks from an existing directory.")
    end
-   
+
+   util.printout("command:", command)
    if commands[command] then
       local cmd = require(commands[command])
       local call_ok, ok, err, exitcode = xpcall(function() return cmd.command(flags, unpack(nonflags)) end, error_handler)
