@@ -65,7 +65,7 @@ function download.download(arch, name, namespace, version, all, check_lua_versio
       url, search_err = search.find_rock_checking_lua_versions(query, check_lua_versions)
       if url then
 		  -- todo could reutrn the url too
-         return download.get_file(url)
+         return download.get_file(url), url
       end
    end
    local rock = util.format_rock_name(name, namespace, version)
