@@ -68,7 +68,7 @@ function path.install_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(path.rocks_dir(tree), name, version)
+   return dir.path(path.rocks_dir(tree) )
 end
 
 --- Get the local filename of the rockspec of an installed rock.
@@ -107,7 +107,7 @@ function path.lib_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(path.rocks_dir(tree), name, version, "lib")
+   return dir.path(path.rocks_dir(tree), "lib")
 end
 
 --- Get the local installation directory for Lua modules of a package.
@@ -120,7 +120,7 @@ function path.lua_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(path.rocks_dir(tree), name, version, "lua")
+   return dir.path(path.rocks_dir(tree), "lua")
 end
 
 --- Get the local installation directory for documentation of a package.
