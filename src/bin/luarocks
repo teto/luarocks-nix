@@ -11,6 +11,7 @@ local description = "LuaRocks main command-line interface"
 local commands = {
    help = "luarocks.cmd.help",
    init = "luarocks.cmd.init",
+   convert2nix = "luarocks.cmd.nix",
    pack = "luarocks.cmd.pack",
    unpack = "luarocks.cmd.unpack",
    build = "luarocks.cmd.build",
