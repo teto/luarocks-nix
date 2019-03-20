@@ -115,13 +115,15 @@ end
 -- @param dependencies array of dependencies
 -- @return dependency string and associated constraints
 local function load_dependencies(deps_array)
-   local lua_constraints = ""
-   local dependencies = ""
+   --
+   local lua_constraints = {}
+
+   -- local cons = {}
+   local dependencies = {}
    for id, dep in ipairs(deps_array)
    do
       local entry = convert_pkg_name_to_nix(dep.name)
       if entry == "lua" and dep.constraints then
-         local cons = {}
          for _, c in ipairs(dep.constraints)
          do
             local constraint_str = nil
@@ -135,16 +137,13 @@ local function load_dependencies(deps_array)
                constraint_str = " luaAtLeast "..util.LQ(tostring(c.version))
             end
             if constraint_str then
-               cons[#cons+1] = "("..constraint_str..")"
+               lua_constraints[#lua_constraints +1] = "("..constraint_str..")"
             end
 
          end
 
-         if #cons > 0 then
-            lua_constraints =  "disabled = "..table.concat(cons,' || ')..";"
-         end
       end
-      dependencies = dependencies..entry.." "
+      dependencies[#dependencies+1] = entry
    end
    return dependencies, lua_constraints
 end
@@ -158,42 +157,13 @@ local function convert_spec2nix(spec, rockspec_url, rock_url)
     assert ( type(rock_url) == "string" or not rock_url )
 
 
-    local dependencies = ""
-    local lua_constraints = ""
-    -- for id, dep in ipairs(spec.dependencies)
-    -- do
-		-- local entry = convert_pkg_name_to_nix(dep.name)
-		-- if entry == "lua" and dep.constraints then
-			-- local cons = {}
-			-- for _, c in ipairs(dep.constraints)
-			-- do
-				-- local constraint_str = nil
-				-- if c.op == ">=" then
-					-- constraint_str = " luaOlder "..util.LQ(tostring(c.version))
-				-- elseif c.op == "==" then
-					-- constraint_str = " lua.luaversion != "..util.LQ(tostring(c.version))
-				-- elseif c.op == ">" then
-					-- constraint_str = " luaOlder "..util.LQ(tostring(c.version))
-				-- elseif c.op == "<" then
-					-- constraint_str = " luaAtLeast "..util.LQ(tostring(c.version))
-				-- end
-				-- if constraint_str then
-					-- cons[#cons+1] = "("..constraint_str..")"
-				-- end
-
-			-- end
-
-    --      if #cons > 0 then
-    --         lua_constraints =  "disabled = "..table.concat(cons,' || ')..";"
-    --      end
-		-- end
-    --     dependencies = dependencies..entry.." "
-    -- end
+    local dependencies = {}
+    local lua_constraints = {}
 
     dependencies, lua_constraints = load_dependencies(spec.dependencies)
     -- TODO to map lua dependencies to nix ones,
     -- try heuristics with nix-locate or manual table ?
-    local external_deps = ""
+    local external_deps = {}
     if spec.external_dependencies then
        --   for name, ext_files in util.sortedpairs(spec.external_dependencies)
        -- do
@@ -213,17 +183,18 @@ local function convert_spec2nix(spec, rockspec_url, rock_url)
 
        -- TODO might nbe a pb here
        sources = [[
-       knownRockspec = (]]..url2src(rockspec_url)..[[).outPath;
+  knownRockspec = (]]..url2src(rockspec_url)..[[).outPath;
 
-       src = ]].. convert_specsource2nix(spec) ..[[;
-       ]]
+  src = ]].. convert_specsource2nix(spec) ..[[;
+  ]]
     else
+
        return nil, "Either rockspec_url or rock_url must be set"
     end
 
     local propagatedBuildInputs = ""
     if #dependencies > 0 then
-       propagatedBuildInputs = "propagatedBuildInputs = [ "..dependencies.."];"
+       propagatedBuildInputs = "propagatedBuildInputs = [ "..table.concat(dependencies, " ").."];"
     end
 
 
@@ -236,29 +207,34 @@ local function convert_spec2nix(spec, rockspec_url, rock_url)
     --    propagatedBuildInputs = "checkInputs = ["..dependencies.." ];"
     -- end
 
-  -- should be able to do without 'rec'
+    lua_constraints_str = ""
+    if #lua_constraints then
+      lua_constraints_str = "disabled = "..table.concat(lua_constraints,' || ')..";"
+    end
+   -- should be able to do without 'rec'
    -- we have to quote the urls because some finish with the bookmark '#' which fails with nix
-    local header = [[buildLuarocksPackage {
-  pname = ]]..util.LQ(spec.name)..[[;
-  version = ]]..util.LQ(spec.version)..[[;
+    local header = [[
+callPackage ({]]..table.concat(dependencies, ", ")..[[}:
+  buildLuarocksPackage {
+   pname = ]]..util.LQ(spec.name)..[[;
+   version = ]]..util.LQ(spec.version)..[[;
 
-  ]]..sources..[[
+   ]]..sources..[[
+   ]]..lua_constraints_str..[[
 
-  ]]..lua_constraints..[[
+   ]]..propagatedBuildInputs..[[
+   ]]..checkInputs..[[
 
-  ]]..propagatedBuildInputs..[[
-  ]]..checkInputs..[[
+   buildType = ]]..util.LQ(spec.build.type)..[[;
 
-  buildType = ]]..util.LQ(spec.build.type)..[[;
-
-  meta = {
-    homepage = ]]..util.LQ(spec.description.homepage or spec.source.url)..[[;
-    description=]]..util.LQ(spec.description.summary)..[[;
-    license = {
-      fullName = ]]..util.LQ(spec.description.license)..[[;
-    };
-  };
-};
+   meta = {
+      homepage = ]]..util.LQ(spec.description.homepage or spec.source.url)..[[;
+      description=]]..util.LQ(spec.description.summary)..[[;
+      license = {
+         fullName = ]]..util.LQ(spec.description.license)..[[;
+      };
+   };
+  }) {};
 ]]
 
     return header
