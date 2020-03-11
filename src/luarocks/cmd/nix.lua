@@ -275,6 +275,10 @@ local function convert_spec2nix(spec, rockspec_url, rock_url, manual_overrides)
     if spec.description.license then
        license_str = [[    license.fullName = ]]..util.LQ(spec.description.license)..";\n"
    end
+   local buildTypeStr = ""
+   if spec.build and spec.build.type then
+      buildTypeStr = "  buildType = \""..spec.build.type.."\"\n"
+   end
 
    -- should be able to do without 'rec'
    -- we have to quote the urls because some finish with the bookmark '#' which fails with nix
@@ -285,6 +289,7 @@ buildLuarocksPackage {
 
   ]]..sources..[[
 
+]]..buildTypeStr..[[
 ]]..lua_constraints_str..[[
 ]]..propagated_build_inputs_str..[[
 ]]..checkInputsStr..[[
