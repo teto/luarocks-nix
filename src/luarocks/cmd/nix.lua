@@ -307,15 +307,13 @@ buildLuarocksPackage {
     return header
 end
 
---
--- @return (spec, url, )
 function run_query (name, version)
     local search = require("luarocks.search")
 
     -- "src" to fetch only sources
     -- see arch_to_table for, any delimiter will do
     local operator = ">"
-    local query = queries.new(name, version, false, "src|rockspec")
+    local query = queries.new(name, nil, version, false, "src|rockspec")
     local url, search_err = search.find_suitable_rock(query)
     if not url then
         util.printerr("can't find suitable rock "..name)
