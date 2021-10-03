@@ -88,7 +88,7 @@ end
 
 local function check_macosx_deployment_target(rockspec)
    local target = rockspec.build.macosx_deployment_target
-   local function minor(version) 
+   local function minor(version)
       return tonumber(version and version:match("^[^.]+%.([^.]+)"))
    end
    local function patch_variable(var)
@@ -382,7 +382,7 @@ function build.build_rockspec(rockspec, opts)
    local name, version = rockspec.name, rockspec.version
    if opts.build_only_deps then
       return name, version
-   end   
+   end
 
    if repos.is_installed(name, version) then
       repos.delete_version(name, version, opts.deps_mode)
@@ -390,10 +390,10 @@ function build.build_rockspec(rockspec, opts)
 
    ok, err = fetch_and_change_to_source_dir(rockspec, opts)
    if not ok then return nil, err end
-   
+
    local dirs, err = prepare_install_dirs(name, version)
    if not dirs then return nil, err end
-   
+
    local rollback = util.schedule_function(function()
       fs.delete(path.install_dir(name, version))
       fs.remove_dir_if_empty(path.versions_dir(name))
@@ -403,16 +403,16 @@ function build.build_rockspec(rockspec, opts)
       local ok, err = build.apply_patches(rockspec)
       if not ok then return nil, err end
    end
-   
+
    ok, err = check_macosx_deployment_target(rockspec)
    if not ok then return nil, err end
-   
+
    ok, err = run_build_driver(rockspec)
    if not ok then return nil, err end
-   
+
    ok, err = install_files(rockspec, dirs)
    if not ok then return nil, err end
-   
+
    for _, d in pairs(dirs) do
       fs.remove_dir_if_empty(d.name)
    end
@@ -427,7 +427,7 @@ function build.build_rockspec(rockspec, opts)
 
    ok, err = repos.deploy_files(name, version, repos.should_wrap_bin_scripts(rockspec), opts.deps_mode)
    if not ok then return nil, err end
-   
+
    util.remove_scheduled_function(rollback)
    rollback = util.schedule_function(function()
       repos.delete_version(name, version, opts.deps_mode)
