@@ -366,7 +366,8 @@ function nix.command(args)
       if not spec then
           return false, msg
       end
-
+   elseif name:match(".*%.rockspec$") then
+      rockspec_filename = name
    elseif name:match("://") then
       local url = write_rockspec.detect_url(name)
 
