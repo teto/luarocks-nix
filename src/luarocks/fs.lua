@@ -12,6 +12,7 @@ local fs = {}
 package.loaded["luarocks.fs"] = fs
 
 local cfg = require("luarocks.core.cfg")
+print("EACH PLATFORM", cfg.each_platform)
 
 local pack = table.pack or function(...) return { n = select("#", ...), ... } end
 local unpack = table.unpack or unpack
@@ -78,10 +79,12 @@ do
    end
 
    local function load_platform_fns(patt, inits)
+      print("EACH PLATFORM", cfg.each_platform)
       local each_platform = cfg.each_platform
 
       -- FIXME A quick hack for the experimental Windows build
       if os.getenv("LUAROCKS_CROSS_COMPILING") then
+         print("CROSSCOMPILING")
          each_platform = function()
             local i = 0
             local plats = { "linux", "unix" }

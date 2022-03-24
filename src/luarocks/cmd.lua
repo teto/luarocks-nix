@@ -496,6 +496,7 @@ function cmd.run_command(description, commands, external_namespace, ...)
 
    -- Preliminary initialization
    cfg.init()
+   print("AFTER INIT", cfg.each_platform)
 
    fs.init()
 

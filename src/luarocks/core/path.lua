@@ -8,7 +8,10 @@ local require = nil
 --------------------------------------------------------------------------------
 
 function path.rocks_dir(tree)
+
+   print("tree", tree)
    if tree == nil then
+      print("cfg.root_dir", cfg.root_dir)
       tree = cfg.root_dir
    end
    if type(tree) == "string" then

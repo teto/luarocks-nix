@@ -664,6 +664,7 @@ function cfg.init(detected, warning)
    -- Load user configuration file (if allowed)
    local home_config_ok
    local project_config_ok
+   print("before    if not hardcoded.FORCE_CONFIG then")
    if not hardcoded.FORCE_CONFIG then
       local env_var   = "LUAROCKS_CONFIG_" .. cfg.lua_version:gsub("%.", "_")
       local env_value = os.getenv(env_var)
@@ -672,9 +673,11 @@ function cfg.init(detected, warning)
          env_value = os.getenv(env_var)
       end
       -- first try environment provided file, so we can explicitly warn when it is missing
+      print("trying env_value", env_value)
       if env_value then
          local env_ok, err = load_config_file(cfg, platforms, env_value)
          if err then
+            print("Could not load ", env_value, err)
             return nil, err, "config"
          elseif warning and not env_ok then
             warning("Warning: could not load configuration file `"..env_value.."` given in environment variable "..env_var.."\n")
@@ -685,6 +688,7 @@ function cfg.init(detected, warning)
          end
       end
 
+      print("Trying XDG")
       -- try XDG config home
       if platforms.unix and not home_config_ok then
          local xdg_config_home = os.getenv("XDG_CONFIG_HOME") or cfg.home .. "/.config"
@@ -696,6 +700,7 @@ function cfg.init(detected, warning)
          end
       end
 
+      print("home ok")
       -- try the alternative defaults if there was no environment specified file or it didn't work
       if not home_config_ok then
          cfg.homeconfdir = cfg.home_tree
@@ -706,6 +711,7 @@ function cfg.init(detected, warning)
          end
       end
 
+      print("project_dir")
       -- finally, use the project-specific config file if any
       if cfg.project_dir then
          project_config_file = cfg.project_dir .. "/.luarocks/" .. config_file_name
@@ -715,6 +721,8 @@ function cfg.init(detected, warning)
          end
       end
    end
+
+   print("after  if not hardcoded.FORCE_CONFIG then")
 
    ----------------------------------------
    -- Config files are loaded.
@@ -834,6 +842,8 @@ function cfg.init(detected, warning)
       return platforms[name]
    end
 
+   print("DEFINING cfg.each_platform")
+
    -- @param direction (optional) "least-specific-first" (default) or "most-specific-first"
    function cfg.each_platform(direction)
       direction = direction or "least-specific-first"
@@ -854,6 +864,8 @@ function cfg.init(detected, warning)
          return p
       end
    end
+
+   print("after cfg.each_platform definition", cfg.each_platform)
 
    function cfg.print_platforms()
       local platform_keys = {}
