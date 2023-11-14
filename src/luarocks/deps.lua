@@ -80,6 +80,10 @@ local function match_dep(dep, get_versions)
    assert(type(dep) == "table")
    assert(type(get_versions) == "function")
 
+   if cfg.verbose then
+      print("Matching dep ", dep.name)
+   end
+
    local versions, locations, lockversion, provided = get_versions(dep)
 
    local latest_version
